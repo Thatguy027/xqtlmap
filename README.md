@@ -11,6 +11,11 @@ for — LOD trace, support intervals, effect sizes.
 xqtlmap --aser aser/ --metadata metadata.tsv --out results/
 ```
 
+**Scope.** This repository stops at contrasts. Everything downstream — condition
+specificity, resolving linked QTL, genome-wide breakdown, interval gene annotation —
+lives elsewhere and is deliberately not here. The output of a run is the input to that
+work, not a step within it.
+
 ---
 
 ## Install

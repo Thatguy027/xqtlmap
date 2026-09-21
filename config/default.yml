@@ -40,7 +40,6 @@ LOD.drop: 2                  # LOD-drop support interval width
 individual.plot.width: 16
 contrast.plot.width: 16
 contrast.plot.height: 16
-save.rda: false              # also write af_counts.rda (list(afds, countdfs))
 
 # --- LOD computation ----------------------------------------------------
 # xQTLStats forms p = 2*pnorm(|z|) on the linear scale, which underflows to 0

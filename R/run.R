@@ -117,18 +117,10 @@ gt  <- read_serialized(gt.file)
 ## -- per-sample allele frequency deviations ----------------------------------
 
 msg("computing per-sample count tables and allele-frequency deviations")
-sa       <- compute_sample_afds(sheet, aser.paths, vcf, gt, gmap, cfg, cache.dir,
-                                force = isTRUE(opts$force))
-countdfs <- sa$countdfs
-afds     <- sa$afds
+afds <- compute_sample_afds(sheet, aser.paths, vcf, gt, gmap, cfg, cache.dir,
+                            force = isTRUE(opts$force))$afds
 
 rm(vcf, gt); invisible(gc())
-
-if (isTRUE(cfg$save.rda)) {
-  tosave <- list(afds, countdfs)
-  save(tosave, file = file.path(out.dir, "af_counts.rda"))
-  msg("wrote ", file.path(out.dir, "af_counts.rda"))
-}
 
 ## -- allele frequency plots --------------------------------------------------
 
