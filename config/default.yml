@@ -69,12 +69,3 @@ pub.plot.height: 3.2
 pub.formats: ["pdf", "png"]
 
 pub.y.trans: "identity"       # or "sqrt" to bring weaker QTL into view
-
-# --- stage 3: interval annotation ---------------------------------------
-cendr.dir: "/Users/Stefan/UCLA/Genomics_Data/CeNDR/20231213"
-flank: 50000                 # bp added to each side of a QTL interval
-min.peak.lod: 0              # skip intervals with a weaker peak than this
-
-max.genes.drawn: 60          # above this, the overview gene track keeps only genes with a coding difference
-
-max.interval.kb: 1000        # intervals wider than this are dropped unless peak LOD clears min.peak.lod
