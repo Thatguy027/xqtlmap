@@ -52,14 +52,12 @@ lod.convention: "package"
 # Support interval width. pub.lod.drop.frac, when set, overrides pub.lod.drop
 # and makes the drop a fraction of each chromosome's own peak LOD.
 #
-# Calibrated against the Nov2024 chrIII QTL, whose causal allele is known to be
-# in sid-2 (III:13,679,445-13,682,450). For a contiguous interval to reach the
-# gene it must clear the MINIMUM LOD along the path from the peak, not the LOD
-# at the gene itself:
-#   HT115g vs MIG6g  peak 334.7, min on path 315.0  -> drop 19.7 = 5.9% of peak
-#   HT115g vs POS1g  peak 139.7, min on path 125.9  -> drop 13.8 = 9.9% of peak
-# 0.10 satisfies both. (The MIG6g vs POS1g contrast is RNAi-vs-RNAi, the shared
-# uptake locus cancels, and sid-2 is correctly not recovered there.)
+# 0.10 was calibrated on a cross whose causal gene was known, by asking what
+# drop the interval needs to reach it. The constraint is the MINIMUM LOD along
+# the path from the peak to the gene, not the LOD at the gene itself: a dip
+# between the two truncates a contiguous interval before it arrives. Two
+# independent contrasts over that locus needed 5.9% and 9.9% of their own peak,
+# so 0.10 satisfies both. Recalibrate if you have a known causal allele.
 pub.lod.drop: 1.5
 pub.lod.drop.frac: 0.10
 pub.shade.only.significant: true   # only shade chromosomes clearing the threshold

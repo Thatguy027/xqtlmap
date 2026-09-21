@@ -435,9 +435,9 @@ lod_threshold <- function(alpha = 0.05, effective.n.tests = 2000,
 ## marker that falls below peak - lod.drop, which is what a support interval
 ## normally means.
 ## `lod.drop.frac`, when set, makes the drop a fraction of each chromosome's own
-## peak instead of an absolute number of LOD units. Calibrated at 0.056 from the
-## Nov2024 chrIII QTL, where the causal allele in sid-2 sits 18.9 LOD below a
-## 334.7 peak (5.6%). An absolute drop of that size is destructive on weak peaks
+## peak instead of an absolute number of LOD units. Calibrated on a cross whose
+## causal gene was known, where the causal allele sat 18.9 LOD below a 334.7
+## peak (5.6%). An absolute drop of that size is destructive on weak peaks
 ## -- 20 LOD below a LOD-31 peak covers an entire chromosome -- whereas the
 ## proportional form transfers across peak strengths.
 peak_intervals <- function(results, lod.drop = 1.5, threshold = NULL,

@@ -1,3 +1,3 @@
 # Dataset-level overrides, picked up automatically when this file sits beside
-# the metadata table. These pools are AIL generation 9, one short of the map's.
+# the metadata table. Example: pools one AIL generation short of the map's.
 map.expansion.factor: 0.186

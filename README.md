@@ -75,20 +75,20 @@ named `.tsv` works. Five columns are required:
 | `contrast_to` | comma- or semicolon-separated `sample_name`s to contrast this sample **against**. Leave blank for none. |
 
 Any other column you add becomes part of the sample's label, in the order the columns
-appear, so `timepoint` and `stage` below produce `S3_XZ1516_ECA191_1_L1_let-363`. That
+appear, so `timepoint` and `stage` below produce `P2_N2_CB4856_1_L1_drugA`. That
 label names the cache entry and every output file.
 
 ```tsv
 sample_name	parent1	parent2	timepoint	stage	condition	contrast_to	n_worms
-S1	XZ1516	ECA191	1	L1	HT115		100000
-S2	XZ1516	ECA191	1	L1	pos-1		15000
-S3	XZ1516	ECA191	1	L1	let-363	S1,S2	25000
-S4	XZ1516	ECA191	1	L1	sbp-1	S1,S2	31000
+P1	N2	CB4856	1	L1	control		100000
+P2	N2	CB4856	1	L1	drugA	P1	40000
+P3	N2	CB4856	1	L1	drugB	P1	35000
+P4	N2	CB4856	2	L1	control	P1	120000
 ```
 
-**`contrast_to` is directional.** `contrast_to = S1` on row `S3` produces
-`afd(S3) − afd(S1)`, so a positive effect means the `parent1` allele is at higher
-frequency in **S3**. Contrast each knockdown against its control, not the reverse.
+**`contrast_to` is directional.** `contrast_to = P1` on row `P2` produces
+`afd(P2) − afd(P1)`, so a positive effect means the `parent1` allele is at higher
+frequency in **P2**. Contrast each treatment against its control, not the reverse.
 
 **`n_worms` is special.** It is the one extra column that does *not* enter the label. It
 sets `sample.size` per sample, which caps the effective *n* behind every standard error:

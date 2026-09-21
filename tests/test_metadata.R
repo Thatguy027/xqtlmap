@@ -32,7 +32,7 @@ HDR <- "sample_name\tparent1\tparent2\tcondition\tcontrast_to"
 cat("\nmetadata parsing\n")
 ok("reads the shipped example", {
   s <- read_sample_sheet(file.path(PKG_DIR, "examples", "metadata.tsv"))
-  stopifnot(nrow(s) == 8, "n_worms" %in% names(s))
+  stopifnot(nrow(s) == 7, "n_worms" %in% names(s))
 })
 ok("reads a comma-separated table named .tsv", {
   f <- tmp(c("sample_name,parent1,parent2,condition,contrast_to",
