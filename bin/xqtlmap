@@ -1,0 +1,92 @@
+#!/usr/bin/env Rscript
+## xqtlmap --------------------------------------------------------------------
+## Allele-frequency mapping for bulk-segregant xQTL experiments.
+##
+## Takes a directory of GATK ASEReadCounter tables and a metadata table, and
+## writes per-sample allele-frequency plots plus every contrast the metadata
+## asks for, with LOD traces and support intervals.
+##
+##   xqtlmap --aser aser/ --metadata metadata.tsv --out results/
+##   xqtlmap --aser aser/ --metadata metadata.tsv --out results/ --check
+##   xqtlmap --aser aser/ --metadata metadata.tsv --out results/ --bin.width=5000
+##
+## Required
+##   --aser DIR        directory of ASEReadCounter tables, one per sample.
+##                     Files are matched by sample_name, with or without a
+##                     .table / .tsv / .txt extension, gzipped or not.
+##   --metadata FILE   TSV or CSV; see README for the columns.
+##
+## Options
+##   --out DIR         output directory (default: ./xqtlmap_out)
+##   --check           validate inputs and print the plan, then stop
+##   --force           ignore the per-sample cache and recompute everything
+##   --config FILE     alternate config (default: config/default.yml, with an
+##                     xqtlmap.yml beside the metadata overlaid when present)
+##   --KEY=VALUE       override any config key, e.g. --bin.width=5000
+##   --help
+## ---------------------------------------------------------------------------
+
+args <- commandArgs(trailingOnly = TRUE)
+
+`%||%` <- function(a, b) if (is.null(a)) b else a
+
+this_file <- local({
+  ca <- commandArgs(trailingOnly = FALSE)
+  f <- sub("^--file=", "", ca[grep("^--file=", ca)])
+  if (length(f)) normalizePath(f) else normalizePath("bin/xqtlmap")
+})
+PKG_DIR <- dirname(dirname(this_file))
+
+usage <- function(status = 1) {
+  cat(paste(sub("^#+ ?", "", grep("^##", readLines(this_file), value = TRUE)[-1]),
+            collapse = "\n"), "\n")
+  quit(status = status)
+}
+if (!length(args) || any(args %in% c("-h", "--help"))) usage(if (length(args)) 0 else 1)
+
+## -- flags -------------------------------------------------------------------
+## Accepts both --key value and --key=value.
+opts <- list(); i <- 1L
+while (i <= length(args)) {
+  a <- args[i]
+  if (!grepl("^--", a)) { stop("unexpected argument: ", a, call. = FALSE) }
+  kv <- sub("^--", "", a)
+  if (grepl("=", kv)) {
+    opts[[sub("=.*$", "", kv)]] <- sub("^[^=]*=", "", kv); i <- i + 1L
+  } else if (i < length(args) && !grepl("^--", args[i + 1L]) &&
+             kv %in% c("aser", "metadata", "out", "config")) {
+    opts[[kv]] <- args[i + 1L]; i <- i + 2L
+  } else {
+    opts[[kv]] <- TRUE; i <- i + 1L
+  }
+}
+
+for (k in c("aser", "metadata"))
+  if (is.null(opts[[k]]) || isTRUE(opts[[k]]))
+    stop("--", k, " is required. Run with --help.", call. = FALSE)
+
+ASER_DIR <- normalizePath(opts$aser, mustWork = TRUE)
+METADATA <- normalizePath(opts$metadata, mustWork = TRUE)
+OUT_DIR  <- opts$out %||% "xqtlmap_out"
+if (isTRUE(OUT_DIR)) stop("--out needs a directory", call. = FALSE)
+dir.create(OUT_DIR, showWarnings = FALSE, recursive = TRUE)
+OUT_DIR <- normalizePath(OUT_DIR)
+
+## -- dependencies ------------------------------------------------------------
+## Named here rather than left to fail at the first library() call, because the
+## two GitHub-only packages are the ones people actually lack and install() for
+## them is not the same as for the CRAN ones.
+NEEDED <- c(tidyverse = "CRAN", vcfR = "CRAN", AlphaSimR = "CRAN", Rfast = "CRAN",
+            ggpubr = "CRAN", yaml = "CRAN", qs2 = "CRAN",
+            xQTLStats = "github: joshsbloom/xQTLStats")
+missing <- names(NEEDED)[!vapply(names(NEEDED),
+                                 function(p) requireNamespace(p, quietly = TRUE), logical(1))]
+if (length(missing)) {
+  cat("missing R package(s):\n")
+  for (m in missing) cat("  ", m, "  (", NEEDED[[m]], ")\n", sep = "")
+  cat("\nSee README, 'Install'.\n")
+  quit(status = 1)
+}
+
+source(file.path(PKG_DIR, "R", "pipeline.R"), local = FALSE)
+source(file.path(PKG_DIR, "R", "run.R"),      local = FALSE)

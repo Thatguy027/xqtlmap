@@ -1,0 +1,80 @@
+# xqtlmap defaults. Override any key on the command line (--bin.width=5000), in
+# an xqtlmap.yml beside your metadata table, or with --config=/path/to/other.yml.
+# Precedence: command line > xqtlmap.yml > this file.
+
+# --- external resources -------------------------------------------------
+reference.dir: "~/github_repos/xQTLSims"   # see README, "Reference data"
+# Genetic map (F10 AIL map, rescaled to F2 expectation inside the pipeline)
+gmap.file: "data/geneticMapXQTLsnplist.rds"
+# Filtered CeNDR isotype VCF + numeric GT matrix. Relative paths are resolved
+# against reference.dir. Both .qs (package qs) and .qs2 (package qs2) work.
+vcf.file: "data/WI.20220216.vcf.qs2"
+gt.file:  "data/WI.20220216.vcf.GT.qs2"
+
+# --- analysis parameters ------------------------------------------------
+uchr: ["I", "II", "III", "IV", "V", "X"]
+X.drop: false                # keep the X chromosome when building founder pops
+# restructureGeneticMap multiplies the stored map by this to normalise it to F2.
+# The shipped map was measured on an F10 AIL and runs ~5.3x the F2 map, which is
+# where 0.2 comes from -- so it encodes the MAP's generation, not your pools'.
+# A population at AIL generation t wants 0.2 * E_t/E_10, E_t = (t+4)/6:
+#   F8 0.171   F9 0.186   F10 0.200 (default)   F12 0.229
+map.expansion.factor: 0.2
+expandX: true                # force obligate chiasma on X
+
+# calcAFD()
+# Individuals in the pool. calcAFD takes n = min(sample.size * sel.strength,
+# total reads / eff.length), and n sets every allele-frequency standard error.
+# Pools of different sizes: put an n_worms column in the metadata table instead,
+# and this becomes the fallback for rows that leave it blank.
+sample.size: 10000
+sel.strength: 0.95
+bin.width: 10000
+eff.length: 2000
+
+# contrast summary
+effective.n.tests: 2000
+LOD.drop: 2                  # LOD-drop support interval width
+
+# --- output -------------------------------------------------------------
+individual.plot.width: 16
+contrast.plot.width: 16
+contrast.plot.height: 16
+save.rda: false              # also write af_counts.rda (list(afds, countdfs))
+
+# --- LOD computation ----------------------------------------------------
+# xQTLStats forms p = 2*pnorm(|z|) on the linear scale, which underflows to 0
+# at |z| ~ 38.5 and makes LOD Inf. The pipeline recomputes LOD in log space.
+#   package : bit-identical to xQTLStats::PvalToLOD(), minus the underflow
+#   chisq   : textbook 1-df LOD, z^2/(2*ln10)  (= package + log10(2))
+lod.convention: "package"
+
+# --- publication figures ------------------------------------------------
+# Support interval width. pub.lod.drop.frac, when set, overrides pub.lod.drop
+# and makes the drop a fraction of each chromosome's own peak LOD.
+#
+# Calibrated against the Nov2024 chrIII QTL, whose causal allele is known to be
+# in sid-2 (III:13,679,445-13,682,450). For a contiguous interval to reach the
+# gene it must clear the MINIMUM LOD along the path from the peak, not the LOD
+# at the gene itself:
+#   HT115g vs MIG6g  peak 334.7, min on path 315.0  -> drop 19.7 = 5.9% of peak
+#   HT115g vs POS1g  peak 139.7, min on path 125.9  -> drop 13.8 = 9.9% of peak
+# 0.10 satisfies both. (The MIG6g vs POS1g contrast is RNAi-vs-RNAi, the shared
+# uptake locus cancels, and sid-2 is correctly not recovered there.)
+pub.lod.drop: 1.5
+pub.lod.drop.frac: 0.10
+pub.shade.only.significant: true   # only shade chromosomes clearing the threshold
+pub.plot.width: 10           # inches
+pub.plot.height: 3.2
+pub.formats: ["pdf", "png"]
+
+pub.y.trans: "identity"       # or "sqrt" to bring weaker QTL into view
+
+# --- stage 3: interval annotation ---------------------------------------
+cendr.dir: "/Users/Stefan/UCLA/Genomics_Data/CeNDR/20231213"
+flank: 50000                 # bp added to each side of a QTL interval
+min.peak.lod: 0              # skip intervals with a weaker peak than this
+
+max.genes.drawn: 60          # above this, the overview gene track keeps only genes with a coding difference
+
+max.interval.kb: 1000        # intervals wider than this are dropped unless peak LOD clears min.peak.lod

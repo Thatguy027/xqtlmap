@@ -1,0 +1,16 @@
+# outputs
+xqtlmap_out/
+*_out/
+cache/
+*.rda
+*.Rhistory
+.Rproj.user/
+
+# reference data is large and licensed separately; never commit it
+*.qs
+*.qs2
+*.rds
+!examples/**/*.rds
+
+# OS
+.DS_Store
